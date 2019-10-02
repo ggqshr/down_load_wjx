@@ -6,6 +6,7 @@ from urllib.request import urlretrieve
 
 import pandas
 import os
+import wget
 
 import requests
 from selenium.common.exceptions import NoSuchElementException
@@ -14,7 +15,7 @@ from time import sleep
 from selenium import webdriver
 
 PREFIX = "photo"
-
+PDF_PREFIX = "pdf"
 dd = dict()
 
 
@@ -71,6 +72,28 @@ def rename_photo(data):
 #         print("filed url is %s" % url)
 #         print(e)
 #     sleep(0.4)
+def down_load_pdf(data,driver):
+    for dd in tqdm.tqdm(data):
+        if dd['desc_pdf'] == "(空)":
+            continue
+        file_name = f"{dd['name']}_{dd['area']}_{dd['school']}_{dd['first']}_{dd['second']}"
+        url = dd['desc_pdf']
+        if "," in url:
+            urls = url.split(",")
+            for i in urls:
+                _down_load_pdf(file_name, i)
+        else:
+            _down_load_pdf(file_name, url)
+
+        sleep(0.1)
+
+def _down_load_pdf(file_name, url):
+    try:
+        wget.download(url)
+    except Exception as e:
+        print("filed url is %s" % url)
+        print(e)
+    sleep(0.4)
 
 
 def login(driver):
@@ -104,11 +127,11 @@ def get_file_list(file_path):
 if __name__ == '__main__':
     # options = webdriver.ChromeOptions()
     # prefs = {'profile.default_content_settings.popups': 0,
-    #          'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\photo'}
+    #          'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\pdf'}
     # options.add_experimental_option('prefs', prefs)
     # driver = webdriver.Chrome(chrome_options=options)
     # login(driver)
-    # down_load_photo(load_data(), driver)
-    # with open("fff.data", "wb") as f:
-    #     pickle.dump(dd, f)
-    rename_photo(list(load_data()))
+    down_load_pdf(load_data(), None)
+    with open("fff.data", "wb") as f:
+        pickle.dump(dd, f)
+    # rename_photo(list(load_data()))
