@@ -22,6 +22,7 @@ def load_data():
     data = pandas.read_excel("45861706_0_华南理工大学第三十届研究生会招新报名表_659_659.xls")
     for item in data.itertuples(index=False):
         yield {
+            "index": getattr(item, "序号"),
             "name": getattr(item, "_6"),
             "area": getattr(item, "_10"),
             "school": getattr(item, "_11"),
@@ -50,18 +51,26 @@ def down_load_photo(data, driver):
         sleep(0.1)
 
 
-def _down_load_photo(file_name, url):
-    try:
-        driver.get(url)
-        sleep(1)
-        temp_name = get_file_list(PREFIX)[-1]
-        src = os.path.join(PREFIX, temp_name)
-        des = os.path.join(PREFIX, ".".join([file_name, temp_name.split(".")[-1]]))
-        print(f'{temp_name.split(".")[0]}:{des}')
-        dd[temp_name.split(".")[0]] = des
-    except Exception as e:
-        print("filed url is %s" % url)
-        print(e)
+def rename_photo(data):
+    for dd in tqdm.tqdm(os.listdir("D:\Project\Independent_project\downLoadwjx\photo")):# type:str
+        index = dd.split(".")[0].split("_")[0]
+        ext = dd.split(".")[-1]
+        this_name = os.path.join("D:\Project\Independent_project\downLoadwjx\photo", dd)
+        name_file = data[int(index) - 1]
+        print(f"file index is {index} and data_file index is {name_file['index']}")
+        file_name = f"{name_file['index']}_{name_file['name']}_{name_file['area']}_{name_file['school']}_{name_file['first']}_{name_file['second']}"
+        rename_name = os.path.join("D:\Project\Independent_project\downLoadwjx\photo", f"{file_name}.{ext}")
+        print(f"rename {this_name} to {rename_name}")
+        os.rename(this_name,rename_name)
+
+
+# def _down_load_photo(file_name, url):
+#     try:
+#         driver.get(url)
+#     except Exception as e:
+#         print("filed url is %s" % url)
+#         print(e)
+#     sleep(0.4)
 
 
 def login(driver):
@@ -93,12 +102,13 @@ def get_file_list(file_path):
 
 
 if __name__ == '__main__':
-    options = webdriver.ChromeOptions()
-    prefs = {'profile.default_content_settings.popups': 0,
-             'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\photo'}
-    options.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome(chrome_options=options)
-    login(driver)
-    down_load_photo(load_data(), driver)
-    with open("fff.data", "wb") as f:
-        pickle.dump(dd, f)
+    # options = webdriver.ChromeOptions()
+    # prefs = {'profile.default_content_settings.popups': 0,
+    #          'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\photo'}
+    # options.add_experimental_option('prefs', prefs)
+    # driver = webdriver.Chrome(chrome_options=options)
+    # login(driver)
+    # down_load_photo(load_data(), driver)
+    # with open("fff.data", "wb") as f:
+    #     pickle.dump(dd, f)
+    rename_photo(list(load_data()))
