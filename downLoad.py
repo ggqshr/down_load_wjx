@@ -1,17 +1,11 @@
-import http
-import pickle
-import string
-from urllib.parse import quote
-from urllib.request import urlretrieve
 
 import pandas
 import os
 
-import requests
 from selenium.common.exceptions import NoSuchElementException
 import tqdm
-from time import sleep
 from selenium import webdriver
+import wget
 
 PREFIX = "photo"
 
@@ -32,11 +26,11 @@ def load_data():
         }
 
 
-def down_load_photo(data, driver):
+def down_load_photo(data):
     if not os.path.exists(PREFIX):
         os.mkdir(PREFIX)
     for dd in tqdm.tqdm(data):
-        driver.get(dd)
+        wget.download(dd)
 
 
 def login(driver):
@@ -84,9 +78,4 @@ def down_load_photo_by_list():
 
 
 if __name__ == '__main__':
-    options = webdriver.ChromeOptions()
-    prefs = {'profile.default_content_settings.popups': 0,
-             'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\photo'}
-    options.add_experimental_option('prefs', prefs)
-    driver = webdriver.Chrome(chrome_options=options)
-    down_load_photo(down_load_photo_by_list(), driver)
+    down_load_photo(down_load_photo_by_list())
