@@ -36,32 +36,7 @@ def down_load_photo(data, driver):
     if not os.path.exists(PREFIX):
         os.mkdir(PREFIX)
     for dd in tqdm.tqdm(data):
-        if dd['photo'] == "(空)":
-            continue
-        file_name = f"{dd['name']}_{dd['area']}_{dd['school']}_{dd['first']}_{dd['second']}"
-        url = dd['photo']
-        if "," in url:
-            urls = url.split(",")
-            for i in urls:
-                _down_load_photo(file_name, i)
-        else:
-            _down_load_photo(file_name, url)
-
-        sleep(0.1)
-
-
-def _down_load_photo(file_name, url):
-    try:
-        driver.get(url)
-        sleep(1)
-        temp_name = get_file_list(PREFIX)[-1]
-        src = os.path.join(PREFIX, temp_name)
-        des = os.path.join(PREFIX, ".".join([file_name, temp_name.split(".")[-1]]))
-        print(f'{temp_name.split(".")[0]}:{des}')
-        dd[temp_name.split(".")[0]] = des
-    except Exception as e:
-        print("filed url is %s" % url)
-        print(e)
+        driver.get(dd)
 
 
 def login(driver):
@@ -92,13 +67,26 @@ def get_file_list(file_path):
         return dir_list
 
 
+def down_load_photo_by_list():
+    file = "13.txt"
+    _down_load_list = []
+    with open(file, "r") as f:
+        _down_load_list = f.readlines()
+    down_load_list = []
+    for line in _down_load_list:
+        line = line.replace("\n", "")
+        if "," in line:
+            lines = line.split(",")
+            down_load_list.extend(lines)
+        else:
+            down_load_list.append(line)
+    return down_load_list
+
+
 if __name__ == '__main__':
     options = webdriver.ChromeOptions()
     prefs = {'profile.default_content_settings.popups': 0,
              'download.default_directory': 'D:\\Project\\Independent_project\\downLoadwjx\\photo'}
     options.add_experimental_option('prefs', prefs)
     driver = webdriver.Chrome(chrome_options=options)
-    login(driver)
-    down_load_photo(load_data(), driver)
-    with open("fff.data", "wb") as f:
-        pickle.dump(dd, f)
+    down_load_photo(down_load_photo_by_list(), driver)
